@@ -14,7 +14,7 @@ services:
     restart: unless-stopped
     volumes:
       - /mnt/disks/Docker/hermes-momo:/home/hermeswebui/.hermes:rw
-      - /mnt/disks/Docker/hermes-webui/workspace:/workspace:rw
+      - /mnt/disks/Docker/hermes-webui-momo/workspace:/workspace:rw
 
 networks:
   shared:
