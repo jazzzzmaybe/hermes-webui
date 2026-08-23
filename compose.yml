@@ -1,6 +1,6 @@
 services:
-  hermes-webui:
-    container_name: hermes-webui
+  hermes-webui-momo:
+    container_name: hermes-webui-momo
     environment:
       HERMES_WEBUI_PASSWORD: REDACTED-SECRET-PURGED
       TZ: Asia/Shanghai
