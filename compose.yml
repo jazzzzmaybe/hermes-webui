@@ -2,7 +2,7 @@ services:
   hermes-webui-momo:
     container_name: hermes-webui-momo
     environment:
-      HERMES_WEBUI_PASSWORD: REDACTED-SECRET-PURGED
+      HERMES_WEBUI_PASSWORD: "${HERMES_WEBUI_PASSWORD:?must be set via environment}"
       HERMES_WEBUI_STATE_DIR: /home/hermeswebui/.hermes/webui
       TZ: Asia/Shanghai
       WANTED_GID: 10000
