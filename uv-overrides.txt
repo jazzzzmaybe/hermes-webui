@@ -1,0 +1,17 @@
+# uv override requirements for the WebUI init's staged agent install.
+#
+# The init script runs `uv pip install -e "/app/hermes-agent-src[all]"`, and
+# `uv pip install` never reads a project's [tool.uv] table. hermes-agent v0.22.5
+# pins Pillow==13.0.0 while its dependency browser-harness==0.1.13 pins
+# pillow==12.3.0, so without these overrides the resolve is unsatisfiable and
+# the container crash-loops in init ("No solution found when resolving
+# dependencies" -> "Exiting script").
+#
+# Upstream: nesquena/hermes-webui#8524, NousResearch/hermes-agent#143313.
+# Exported to the container as UV_OVERRIDE (see Dockerfile). Keep this list in
+# sync with the agent's own pyproject [tool.uv] override-dependencies; drop the
+# file once upstream passes these overrides to `uv pip install` itself.
+pynacl>=1.6,<1.7
+cryptography==50.0.1
+Pillow==13.0.0
+spacy-curated-transformers; sys_platform == "never"

@@ -13,5 +13,10 @@
   保留该目录，并把容器内 WebUI 启动解释器指向它（`pm-runtime` 的 3.14 store python）。删掉它
   会导致「服务能启动、界面能开，但每条会话报 `AIAgent not available`」——Dockerfile 已带
   构建期自检（版本断言 + 依赖导入探针 + init 启动行 grep），上游改动不再静默坏掉。
+- **依赖 override 兜底（临时）**：agent v0.22.5 把 `Pillow==13.0.0` 与 `browser-harness==0.1.13`
+  （硬钉 `pillow==12.3.0`）的矛盾交给 `pyproject.toml` 的 `[tool.uv] override-dependencies`，
+  而 init 用的 `uv pip install` 不读该表，容器启动即在依赖解析阶段退出并无限重启。镜像内置
+  `uv-overrides.txt` 并经 `UV_OVERRIDE` 注入，构建期另用 `--dry-run` 断言依赖集可解。上游修好
+  （hermes-webui#8524、hermes-agent#143313）后删掉 `uv-overrides.txt`、对应 `COPY`/`ENV`/自检三行即可。
 
 Unraid 使用方式：Portainer stack 贴 `compose.yml`，watchtower 自动更新。
