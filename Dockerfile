@@ -13,11 +13,6 @@ COPY --from=agent /opt/hermes /opt/hermes
 COPY uv-overrides.txt /opt/uv-overrides.txt
 RUN chmod a+r /opt/uv-overrides.txt
 ENV UV_OVERRIDE=/opt/uv-overrides.txt
-# Build-time guard: the override must make the staged agent resolvable, otherwise the
-# regression only surfaces as a crash loop on the deployed container. --dry-run resolves
-# the full [all] graph and installs nothing (it leaves no egg-info/build behind).
-RUN uv pip install --dry-run --python /opt/hermes/.venv/bin/python \
-      --override /opt/uv-overrides.txt -e "/opt/hermes[all]" 2>&1 | tail -2
 # Agent v0.21.6+ (PM managed runtime): /opt/hermes/.venv is the sealed dependency
 # environment the agent modules load from. Deleting it breaks every chat turn
 # ("AIAgent not available ... ModuleNotFoundError: dotenv") while the server still
@@ -46,3 +41,10 @@ RUN set -e; for f in /hermeswebui_init.bash /apptoo/docker_init.bash /app/docker
 ENV HERMES_WEBUI_AGENT_DIR=/opt/hermes
 ENV HERMES_WEBUI_PYTHON=/opt/hermes/.venv/bin/python
 RUN test -f /opt/hermes/pyproject.toml && test -f /apptoo/server.py
+# Build-time guard: the override must make the staged agent resolvable, otherwise the
+# regression only surfaces as a crash loop on the deployed container. --dry-run resolves the
+# [all] graph and installs nothing. The exit status is propagated explicitly because a
+# pipeline (`... | tail`) would report tail's status and swallow uv's failure.
+RUN uv pip install --dry-run --python /opt/hermes/.venv/bin/python \
+      --override /opt/uv-overrides.txt -e "/opt/hermes[all]" > /tmp/uv-override-check.log 2>&1; \
+    status=$?; tail -3 /tmp/uv-override-check.log; exit $status
